@@ -5,12 +5,10 @@ import com.project.url_shortening.domain.dto.ShortenUrlResponseDTO;
 import com.project.url_shortening.domain.dto.UrlStatsResponseDTO;
 import com.project.url_shortening.domain.model.UrlShortener;
 import com.project.url_shortening.domain.repository.UrlShortenerRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.project.url_shortening.exception.UrlNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -54,8 +52,8 @@ public class ShortenUrlService {
         return code.toString();
     }
 
-    public ShortenUrlResponseDTO getUrl(Long id) {
-        UrlShortener url = repository.findById(id).orElseThrow(() -> new RuntimeException("Employee not exist with id: " + id));
+    public ShortenUrlResponseDTO getUrl(String shortCode) {
+        UrlShortener url = repository.findByShortCode(shortCode).orElseThrow(() -> new UrlNotFoundException("URL with shortCode '" + shortCode + "' not found"));
         incrementAccessCount(url);
 
         return new ShortenUrlResponseDTO(url);
@@ -67,29 +65,31 @@ public class ShortenUrlService {
     }
 
     @Transactional
-    public ShortenUrlResponseDTO updateUrl(Long id, ShortenUrlRequestDTO newUrl) {
-        UrlShortener url = repository.findById(id).orElseThrow(() -> new RuntimeException("Employee not exist with id: " + id));
+    public ShortenUrlResponseDTO updateUrl(String shortCode, ShortenUrlRequestDTO newUrl) {
+        UrlShortener url = repository.findByShortCode(shortCode).orElseThrow(() -> new UrlNotFoundException("URL with shortCode '" + shortCode + "' not found"));
 
         url.setUrl(newUrl.url());
         url.setUpdatedAt(LocalDateTime.now());
         url.setShortCode(generateShortUrl());
+        repository.save(url);
 
         return new  ShortenUrlResponseDTO(url);
     }
 
     @Transactional
-    public void deleteUrl(Long id) {
-        repository.findById(id).orElseThrow(() -> new RuntimeException("Employee not exist with id: " + id));
-        repository.deleteById(id);
+    public void deleteUrl(String shortCode) {
+        UrlShortener url = repository.findByShortCode(shortCode).orElseThrow(() -> new UrlNotFoundException("URL with shortCode '" + shortCode + "' not found"));
+
+        repository.delete(url);
     }
 
-    public UrlStatsResponseDTO getStats(Long id) {
-        UrlShortener url = repository.findById(id).orElseThrow(() -> new RuntimeException("Employee not exist with id: " + id));
+    public UrlStatsResponseDTO getStats(String shortCode) {
+        UrlShortener url = repository.findByShortCode(shortCode).orElseThrow(() -> new UrlNotFoundException("URL with shortCode '" + shortCode + "' not found"));
         return new UrlStatsResponseDTO(url);
     }
 
     public String redirect(String shortCode) {
-        UrlShortener url = repository.findByShortCode(shortCode).orElseThrow(() -> new RuntimeException("URL not found."));
+        UrlShortener url = repository.findByShortCode(shortCode).orElseThrow(() -> new UrlNotFoundException("URL not found."));
         incrementAccessCount(url);
 
         return url.getUrl();

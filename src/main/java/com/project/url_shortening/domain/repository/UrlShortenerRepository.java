@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface UrlShortenerRepository extends JpaRepository<UrlShortener, Long> {
     Optional<UrlShortener> findByShortCode(String shortCode);
 
+    Long findIdByShortCode(String shortCode);
 }

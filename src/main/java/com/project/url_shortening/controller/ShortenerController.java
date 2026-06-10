@@ -4,6 +4,7 @@ import com.project.url_shortening.domain.dto.ShortenUrlRequestDTO;
 import com.project.url_shortening.domain.dto.ShortenUrlResponseDTO;
 import com.project.url_shortening.domain.dto.UrlStatsResponseDTO;
 import com.project.url_shortening.domain.service.ShortenUrlService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,28 +21,28 @@ public class ShortenerController {
     }
 
     @PostMapping
-    public ResponseEntity<ShortenUrlResponseDTO> shortenUrl(@RequestBody ShortenUrlRequestDTO dto) {
-        return ResponseEntity.ok(service.shortenUrl(dto.url()));
+    public ResponseEntity<ShortenUrlResponseDTO> shortenUrl(@Valid @RequestBody ShortenUrlRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.shortenUrl(dto.url()));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ShortenUrlResponseDTO> getUrl(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getUrl(id));
+    @GetMapping("/{shortCode}")
+    public ResponseEntity<ShortenUrlResponseDTO> getUrl(@PathVariable String shortCode) {
+        return ResponseEntity.ok(service.getUrl(shortCode));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ShortenUrlResponseDTO> updateUrl(@PathVariable Long id, @RequestBody ShortenUrlRequestDTO dto) {
-        return ResponseEntity.ok(service.updateUrl(id, dto));
+    @PutMapping("/{shortCode}")
+    public ResponseEntity<ShortenUrlResponseDTO> updateUrl(@PathVariable String shortCode, @Valid @RequestBody ShortenUrlRequestDTO dto) {
+        return ResponseEntity.ok(service.updateUrl(shortCode, dto));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUrl(@PathVariable Long id) {
-        service.deleteUrl(id);
+    @DeleteMapping("/{shortCode}")
+    public ResponseEntity<String> deleteUrl(@PathVariable String shortCode) {
+        service.deleteUrl(shortCode);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping("/{id}/stats")
-    public ResponseEntity<UrlStatsResponseDTO> getUrlStats(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getStats(id));
+    @GetMapping("/{shortCode}/stats")
+    public ResponseEntity<UrlStatsResponseDTO> getUrlStats(@PathVariable String shortCode) {
+        return ResponseEntity.ok(service.getStats(shortCode));
     }
 }
