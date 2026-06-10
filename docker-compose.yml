@@ -9,6 +9,6 @@ services:
     ports:
       - '5404:5432'
     volumes:
-      - ${HOME:-${USERPROFILE}}/db/pgdata_url-sortening:/var/lib/postgresql
+      #- ${HOME:-${USERPROFILE}}/db/pgdata_url-sortening:/var/lib/postgresql
       - ./database/init:/docker-entrypoint-initdb.d
     restart: always

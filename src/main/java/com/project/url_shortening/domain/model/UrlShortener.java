@@ -29,5 +29,5 @@ public class UrlShortener {
     LocalDateTime updatedAt;
 
     @Column(nullable = false)
-    Long accessCount;
+    Integer accessCount;
 }
